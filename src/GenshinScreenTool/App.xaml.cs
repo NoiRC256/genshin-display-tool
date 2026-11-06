@@ -1,5 +1,5 @@
 using System.Windows;
 
-namespace GenshinScreenTool;
+namespace GenshinDisplayTool;
 
 public partial class App : Application { }

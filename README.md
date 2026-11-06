@@ -1,4 +1,4 @@
-# Genshin Screen Tool
+# Genshin Display Tool
 
 A small Windows WPF utility for viewing and editing Genshin Impact display settings for the current Windows user. It supports resolution and fullscreen/windowed mode changes.
 
@@ -12,11 +12,20 @@ A small Windows WPF utility for viewing and editing Genshin Impact display setti
 From this folder:
 
 ```powershell
-dotnet build .\GenshinScreenTool.sln -c Release
-dotnet run --project .\src\GenshinScreenTool\GenshinScreenTool.csproj
+dotnet build .\GenshinDisplayTool.sln -c Release
+dotnet run --project .\src\GenshinDisplayTool\GenshinDisplayTool.csproj
 ```
 
-To publish for Windows x64, use `dotnet publish .\src\GenshinScreenTool\GenshinScreenTool.csproj -c Release -r win-x64 --self-contained false`. The published application requires the .NET 10 Windows Desktop Runtime.
+To publish for Windows x64, use `dotnet publish .\src\GenshinDisplayTool\GenshinDisplayTool.csproj -c Release -r win-x64 --self-contained false`. The published application requires the .NET 10 Windows Desktop Runtime.
+
+The SDK feature band is pinned in `global.json`, and deterministic CI settings are defined in `Directory.Build.props`. To create a release-style archive with a manifest and SHA-256 checksum, run from the repository root:
+
+```powershell
+.\scripts\package.ps1 -Version 1.0.0
+.\scripts\package.ps1 -Version 1.0.0 -SelfContained
+```
+
+Packages are written to `artifacts\package`. The archive contains the complete publish directory and `build-manifest.json`; `SHA256SUMS.txt` is generated beside the archive. Use a protected release environment for code signing rather than storing signing material in this repository. Replace the placeholder `RepositoryUrl` in `Directory.Build.props` before publishing publicly.
 
 ## Registry behavior
 

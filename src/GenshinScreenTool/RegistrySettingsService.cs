@@ -1,7 +1,7 @@
 using System.IO;
 using Microsoft.Win32;
 
-namespace GenshinScreenTool;
+namespace GenshinDisplayTool;
 
 public sealed class RegistrySettingsService
 {

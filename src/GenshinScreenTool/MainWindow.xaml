@@ -1,7 +1,7 @@
-<Window x:Class="GenshinScreenTool.MainWindow"
+<Window x:Class="GenshinDisplayTool.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Genshin Screen Tool"
+        Title="Genshin Display Tool"
         Width="620"
         Height="500"
         MinWidth="520"
@@ -43,7 +43,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Margin="0,0,0,24">
-            <TextBlock Text="Genshin Screen Tool" FontSize="26" FontWeight="SemiBold"/>
+            <TextBlock Text="Genshin Display Tool" FontSize="26" FontWeight="SemiBold"/>
             <TextBlock Text="Set the game display settings, then apply them in one step."
                        Margin="0,6,0,0" Foreground="{StaticResource MutedText}" FontSize="13"/>
         </StackPanel>

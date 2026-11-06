@@ -1,4 +1,4 @@
-namespace GenshinScreenTool;
+namespace GenshinDisplayTool;
 
 public sealed record ScreenSettings(int Width, int Height, bool Fullscreen);
 
