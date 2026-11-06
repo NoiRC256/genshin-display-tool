@@ -34,8 +34,8 @@ if ($Version -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$') { throw "
 if (Test-Path $artifactRoot) { Remove-Item $artifactRoot -Recurse -Force }
 New-Item $publishDirectory -ItemType Directory -Force | Out-Null
 
-Invoke-DotNet @('restore', $project)
-Invoke-DotNet @('publish', $project, '--configuration', $Configuration, '--runtime', $RuntimeIdentifier, '--self-contained', ([string]$SelfContained.IsPresent).ToLowerInvariant(), '--no-restore', '-p:Version=' + $Version, '-p:InformationalVersion=' + $Version, '--output', $publishDirectory)
+Invoke-DotNet @('restore', $project, '--runtime', $RuntimeIdentifier)
+Invoke-DotNet @('publish', $project, '--configuration', $Configuration, '--runtime', $RuntimeIdentifier, '--self-contained', ([string]$SelfContained.IsPresent).ToLowerInvariant(), '--no-restore', ('-p:Version=' + $Version), ('-p:InformationalVersion=' + $Version), '--output', $publishDirectory)
 
 $executable = Join-Path $publishDirectory 'GenshinDisplayTool.exe'
 if (-not (Test-Path $executable)) { throw "Expected executable was not found: $executable" }
