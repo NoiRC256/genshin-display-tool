@@ -1,0 +1,104 @@
+<Window x:Class="GenshinScreenTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Genshin Screen Tool"
+        Width="620"
+        Height="500"
+        MinWidth="520"
+        MinHeight="430"
+        Background="{StaticResource WindowBackground}"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="InputBorder" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource InputBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource Accent}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="24,12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              ContentSource="Content"
+                                              TextElement.Foreground="White"
+                                              TextElement.FontWeight="SemiBold"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="36,30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Margin="0,0,0,24">
+            <TextBlock Text="Genshin Screen Tool" FontSize="26" FontWeight="SemiBold"/>
+            <TextBlock Text="Set the game display settings, then apply them in one step."
+                       Margin="0,6,0,0" Foreground="{StaticResource MutedText}" FontSize="13"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="{StaticResource PanelBackground}"
+                BorderBrush="{StaticResource PanelBorder}" BorderThickness="1"
+                CornerRadius="12" Padding="24">
+            <StackPanel>
+                <TextBlock Text="Display" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,18"/>
+
+                <TextBlock Text="Resolution" Style="{StaticResource FieldLabel}"/>
+                <Grid Margin="0,7,0,22">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource InputBorder}">
+                        <Grid>
+                            <TextBox x:Name="WidthBox" Height="40" Padding="11,8" BorderThickness="0"
+                                     FontSize="15" ToolTip="640–7680 pixels" TextChanged="WidthTextChanged"/>
+                            <TextBlock x:Name="WidthPlaceholder" Text="Width" IsHitTestVisible="False" Margin="11,0" VerticalAlignment="Center"
+                                       Foreground="{StaticResource MutedText}"/>
+                        </Grid>
+                    </Border>
+                    <TextBlock Grid.Column="1" Text="×" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{StaticResource MutedText}" FontSize="16"/>
+                    <Border Grid.Column="2" Style="{StaticResource InputBorder}">
+                        <Grid>
+                            <TextBox x:Name="HeightBox" Height="40" Padding="11,8" BorderThickness="0"
+                                     FontSize="15" ToolTip="480–4320 pixels" TextChanged="HeightTextChanged"/>
+                            <TextBlock x:Name="HeightPlaceholder" Text="Height" IsHitTestVisible="False" Margin="11,0" VerticalAlignment="Center"
+                                       Foreground="{StaticResource MutedText}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <TextBlock Text="Display mode" Style="{StaticResource FieldLabel}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <RadioButton x:Name="FullscreenRadio" Content="Fullscreen" GroupName="Mode"
+                                 FontSize="14" Margin="0,0,28,0"/>
+                    <RadioButton x:Name="WindowedRadio" Content="Windowed" GroupName="Mode" FontSize="14"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="0,20,0,0">
+            <TextBlock x:Name="StatusText" Text="Ready" VerticalAlignment="Center"
+                       Foreground="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,160,0"/>
+            <Button Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right"
+                    Click="ApplyClick" IsDefault="True" MinWidth="140">
+                <TextBlock Text="Apply" Foreground="White" FontWeight="SemiBold"/>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>
