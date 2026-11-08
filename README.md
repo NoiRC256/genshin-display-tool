@@ -2,6 +2,32 @@
 
 A small Windows utility for viewing and changing Genshin Impact's display settings. It can update the resolution and switch between fullscreen and windowed mode.
 
+## How it works
+
+The tool reads and writes Windows Registry values under:
+
+`HKCU\Software\miHoYo\原神`
+
+It updates these `REG_DWORD` values:
+
+- `Screenmanager Resolution Width_h182942802`
+- `Screenmanager Resolution Height_h2627697771`
+- `Screenmanager Is Fullscreen mode_h3981298716`
+
+The fullscreen value is `1` for fullscreen and `0` for windowed mode. The available registry values do not reliably support borderless mode, so the app does not offer it.
+
+The existing registry key is never created by the app. If it is missing, start Genshin Impact once, close it, and try again.
+
+## Safety and limitations
+
+This tool does not work for global version at the moment.
+
+Close Genshin Impact before applying changes. The app reads the values back after writing them and attempts to restore the previous values if a write or verification fails.
+
+The game may overwrite these settings when it exits, and future game versions may change or ignore them. 
+
+The tool does not modify game files and does not require administrator access.
+
 ## Requirements
 
 - Windows 10 or 11, 64-bit
@@ -60,25 +86,3 @@ If no release tag exists, the first release is `v0.1.0`. The workflow publishes 
 For example, if the latest release is `v1.4.2`, choosing `patch` creates `v1.4.3`, `minor` creates `v1.5.0`, and `major` creates `v2.0.0`. The workflow creates stable releases only. A protected GitHub environment named `release` can be configured to require approval before publishing.
 
 The build workflow is also manual-only. Use **Actions → Build → Run workflow** to build `main` or another branch, tag, or commit.
-
-## Registry settings
-
-The tool reads and writes:
-
-`HKCU\Software\miHoYo\原神`
-
-It updates these `REG_DWORD` values:
-
-- `Screenmanager Resolution Width_h182942802`
-- `Screenmanager Resolution Height_h2627697771`
-- `Screenmanager Is Fullscreen mode_h3981298716`
-
-The fullscreen value is `1` for fullscreen and `0` for windowed mode. The available registry values do not reliably support borderless mode, so the app does not offer it.
-
-The existing registry key is never created by the app. If it is missing, start Genshin Impact once, close it, and try again.
-
-## Safety and limitations
-
-Close Genshin Impact before applying changes. The app reads the values back after writing them and attempts to restore the previous values if a write or verification fails.
-
-The game may overwrite these settings when it exits, and future game versions may change or ignore them. The tool does not modify game files and does not require administrator access.
