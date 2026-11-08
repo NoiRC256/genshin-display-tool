@@ -3,10 +3,15 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: Existing v-prefixed tag to release
+      release_type:
+        description: Version increment for this release
         required: true
-        type: string
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 permissions:
   contents: write
@@ -25,7 +30,7 @@ jobs:
       - name: Check out tagged source
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
+          ref: main
           fetch-depth: 0
 
       - name: Set up .NET
@@ -35,15 +40,37 @@ jobs:
           cache: true
           cache-dependency-path: global.json
 
-      - name: Determine version
+      - name: Calculate and create release tag
         id: version
         shell: pwsh
         run: |
-          $tag = '${{ inputs.tag }}'
-          if ($tag -notmatch '^v([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?)$') {
-            throw "Release tag '$tag' is not a supported SemVer tag."
+          git fetch --tags --force
+          $releaseType = '${{ inputs.release_type }}'
+          $tags = @(git tag --list 'v[0-9]*' | Where-Object { $_ -match '^v([0-9]+)\.([0-9]+)\.([0-9]+)$' })
+          if ($tags.Count -eq 0) {
+            $major = 0; $minor = 1; $patch = 0
+          } else {
+            $latest = $tags | ForEach-Object {
+              if ($_ -match '^v([0-9]+)\.([0-9]+)\.([0-9]+)$') {
+                [PSCustomObject]@{ Tag = $_; Major = [int]$Matches[1]; Minor = [int]$Matches[2]; Patch = [int]$Matches[3] }
+              }
+            } | Sort-Object Major, Minor, Patch -Descending | Select-Object -First 1
+            $major = $latest.Major; $minor = $latest.Minor; $patch = $latest.Patch
+            switch ($releaseType) {
+              'patch' { $patch++ }
+              'minor' { $minor++; $patch = 0 }
+              'major' { $major++; $minor = 0; $patch = 0 }
+              default { throw "Unsupported release type '$releaseType'." }
+            }
           }
-          "version=$($Matches[1])" >> $env:GITHUB_OUTPUT
+          $version = "$major.$minor.$patch"
+          $tag = "v$version"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag --annotate $tag --message "Release $tag"
+          git push origin $tag
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
 
       - name: Package framework-dependent build
         shell: pwsh
@@ -80,7 +107,7 @@ jobs:
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ inputs.tag }}
+          TAG: ${{ steps.version.outputs.tag }}
         shell: pwsh
         run: |
           $assets = Get-ChildItem artifacts/release -File | ForEach-Object { $_.FullName }
