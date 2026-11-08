@@ -16,13 +16,13 @@ Run these commands from the repository root:
 
 ```powershell
 dotnet build .\GenshinDisplayTool.sln -c Release
-dotnet run --project .\src\GenshinScreenTool\GenshinScreenTool.csproj
+dotnet run --project .\src\GenshinDisplayTool\GenshinDisplayTool.csproj
 ```
 
 To create a framework-dependent Windows x64 build:
 
 ```powershell
-dotnet publish .\src\GenshinScreenTool\GenshinScreenTool.csproj `
+dotnet publish .\src\GenshinDisplayTool\GenshinDisplayTool.csproj `
   -c Release -r win-x64 --self-contained false
 ```
 

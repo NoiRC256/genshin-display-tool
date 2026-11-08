@@ -13,7 +13,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$project = Join-Path $repositoryRoot 'src\GenshinScreenTool\GenshinScreenTool.csproj'
+$project = Join-Path $repositoryRoot 'src\GenshinDisplayTool\GenshinDisplayTool.csproj'
 $artifactRoot = Join-Path $repositoryRoot 'artifacts\package'
 $publishDirectory = Join-Path $artifactRoot 'publish'
 $deploymentMode = if ($SelfContained) { 'self-contained' } else { 'framework-dependent' }
