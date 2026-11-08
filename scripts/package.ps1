@@ -5,7 +5,8 @@ param(
     [ValidateSet('win-x64')]
     [string] $RuntimeIdentifier = 'win-x64',
     [switch] $SelfContained,
-    [string] $Version
+    [string] $Version,
+    [switch] $AppendChecksum
 )
 
 $ErrorActionPreference = 'Stop'
@@ -15,7 +16,8 @@ $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $project = Join-Path $repositoryRoot 'src\GenshinScreenTool\GenshinScreenTool.csproj'
 $artifactRoot = Join-Path $repositoryRoot 'artifacts\package'
 $publishDirectory = Join-Path $artifactRoot 'publish'
-$archiveName = "GenshinDisplayTool-$RuntimeIdentifier-$Configuration.zip"
+$deploymentMode = if ($SelfContained) { 'self-contained' } else { 'framework-dependent' }
+$archiveName = "GenshinDisplayTool-$RuntimeIdentifier-$deploymentMode-$Configuration.zip"
 $archivePath = Join-Path $artifactRoot $archiveName
 
 function Invoke-DotNet {
@@ -47,10 +49,13 @@ $manifest = [ordered]@{
     generatedUtc = (Get-Date).ToUniversalTime().ToString('o')
     files = @($files | ForEach-Object { [ordered]@{ path = $_.Name; length = $_.Length; sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() } })
 }
-$manifest | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $publishDirectory 'build-manifest.json') -Encoding utf8NoBOM
+$manifest | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $publishDirectory 'build-manifest.json') -Encoding UTF8
 
 Compress-Archive -Path (Join-Path $publishDirectory '*') -DestinationPath $archivePath -CompressionLevel Optimal
 $archiveHash = (Get-FileHash $archivePath -Algorithm SHA256).Hash.ToLowerInvariant()
 "$archiveHash  $archiveName" | Set-Content (Join-Path $artifactRoot 'SHA256SUMS.txt') -Encoding ascii
+if ($AppendChecksum) {
+    "$archiveHash  $archiveName" | Add-Content (Join-Path $artifactRoot 'SHA256SUMS.txt') -Encoding ascii
+}
 Write-Host "Created $archivePath"
 Write-Host "SHA-256: $archiveHash"

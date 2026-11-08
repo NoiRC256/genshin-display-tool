@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing v-prefixed tag to release
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    name: Package release
+    runs-on: windows-latest
+    timeout-minutes: 20
+    environment: release
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: global.json
+
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          $tag = '${{ inputs.tag }}'
+          if ($tag -notmatch '^v([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?)$') {
+            throw "Release tag '$tag' is not a supported SemVer tag."
+          }
+          "version=$($Matches[1])" >> $env:GITHUB_OUTPUT
+
+      - name: Package framework-dependent build
+        shell: pwsh
+        run: .\scripts\package.ps1 -Version '${{ steps.version.outputs.version }}'
+
+      - name: Preserve framework-dependent package
+        shell: pwsh
+        run: |
+          New-Item artifacts/release -ItemType Directory -Force | Out-Null
+          Copy-Item artifacts/package/*.zip artifacts/release/
+
+      - name: Package self-contained build
+        shell: pwsh
+        run: .\scripts\package.ps1 -Version '${{ steps.version.outputs.version }}' -SelfContained
+
+      - name: Collect release assets
+        shell: pwsh
+        run: |
+          New-Item artifacts/release/SHA256SUMS.txt -ItemType File -Force | Out-Null
+          Copy-Item artifacts/package/*.zip artifacts/release/
+          Get-ChildItem artifacts/release -Filter '*.zip' | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)" | Add-Content artifacts/release/SHA256SUMS.txt -Encoding ascii
+          }
+
+      - name: Upload release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: artifacts/release
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        shell: pwsh
+        run: |
+          $assets = Get-ChildItem artifacts/release -File | ForEach-Object { $_.FullName }
+          gh release create $env:TAG @assets --generate-notes --verify-tag

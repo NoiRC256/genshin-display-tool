@@ -27,6 +27,12 @@ The SDK feature band is pinned in `global.json`, and deterministic CI settings a
 
 Packages are written to `artifacts\package`. The archive contains the complete publish directory and `build-manifest.json`; `SHA256SUMS.txt` is generated beside the archive. Use a protected release environment for code signing rather than storing signing material in this repository. Replace the placeholder `RepositoryUrl` in `Directory.Build.props` before publishing publicly.
 
+## GitHub Actions
+
+The Windows build workflow in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) is manual-only and can build `main` or any selected ref. The release workflow in [`.github/workflows/release.yml`](.github/workflows/release.yml) is also manual-only: provide an existing `vMAJOR.MINOR.PATCH` or prerelease tag. It publishes a framework-dependent package, a self-contained package, SHA-256 checksums, and generated release notes.
+
+Configure a protected GitHub environment named `release` and require an approval before production releases. Enable branch protection with the Build status check required and restrict tag creation to maintainers. The workflow uses the repository's automatic token only for the release job; no long-lived secret is required.
+
 ## Registry behavior
 
 The tool reads and writes `HKCU\Software\miHoYo\原神` using `Registry.CurrentUser`. Width, height, and fullscreen are written as `REG_DWORD` values named `Screenmanager Resolution Width_h182942802`, `Screenmanager Resolution Height_h2627697771`, and `Screenmanager Is Fullscreen mode_h3981298716`. A fullscreen value of `1` means fullscreen; `0` means windowed. The supplied registry values do not reliably define a borderless mode, so borderless is not presented as supported.
